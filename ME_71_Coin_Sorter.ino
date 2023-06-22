@@ -1,51 +1,84 @@
 #include <Servo.h>
 
+#define SERVO_PLATE_PIN 9
+#define SERVO_RAMP_PIN 8
+
+#define SERVO_PLATE_ACCEPT_ANGLE 180
+#define SERVO_PLATE_REJECT_ANGLE 0
+#define SERVO_PLATE_DEFAULT_ANGLE 90
+
+#define SERVO_RAMP_25c_ANGLE 58
+#define SERVO_RAMP_5p_ANGLE 95
+#define SERVO_RAMP_20p_ANGLE 120
+
 Servo servo_plate;
 Servo servo_ramp;
 
-/* Angles
-default: 90 (gitna)
-reject: 0 (right)
-accept: 180 (left)
-*/
+int plate_accept = 0;
+int plate_reject = 0;
 
 void setup() {
   Serial.begin(9600);
-  servo_plate.attach(9);
-  servo_plate.write(90);
+  servo_plate.attach(SERVO_PLATE_PIN);
+  servo_ramp.attach(SERVO_RAMP_PIN);
+  servo_plate.write(SERVO_PLATE_DEFAULT_ANGLE);
+  servo_ramp.write(SERVO_RAMP_5p_ANGLE);
 }
 
 void loop() {
-  // digitalWrite(LED_BUILTIN, HIGH);
-  // delay(1000);
-  // digitalWrite(LED_BUILTIN, LOW);
-  // delay(1000);
+  while (Serial.available() == 0) {
+  }
 
-  // servo_plate.write(180);
-  // Serial.println("180");
-  // delay(1000);
+  // Insert coin
+  int input = Serial.parseInt();
 
-  servo_plate.write(90);
-  Serial.println("90");
-  delay(1000);
+  // Example: Accept 5 peso
+  switch (input) {
+    case 25:
+      servo_ramp.write(SERVO_RAMP_25c_ANGLE);
+      Serial.println("25 cents");
+      plate_accept = 1;
+      break;
 
-  // servo_plate.write(0);
-  // Serial.println("0");
-  // delay(1000);
+    case 5:
+      servo_ramp.write(SERVO_RAMP_5p_ANGLE);
+      Serial.println("5 pesos");
+      plate_accept = 1;
+      break;
 
-  // servo_plate.write(90);
-  // Serial.println("90");
-  // delay(1000);
+    case 20:
+      servo_ramp.write(SERVO_RAMP_20p_ANGLE);
+      Serial.println("20 pesos");
+      plate_accept = 1;
+      break;
 
+    default:
+      Serial.println("Please choose a valid selection");
+      plate_reject = 1;
+  }
 
-  // for (angle = 0; angle <= 180; angle += 1) { // goes from 0 degrees to 180 degrees
-  //   servo_plate.write(angle);              // tell servo to go to angleition in variable 'angle'
-  //   delay(15);                       // waits 15 ms for the servo to reach the angleition
-  // }
-  // for (angle = 180; angle >= 0; angle -= 1) { // goes from 180 degrees to 0 degrees
-  //   servo_plate.write(angle);              // tell servo to go to angleition in variable 'angle'
-  //   delay(15);                       // waits 15 ms for the servo to reach the angleition
-  // }
+  if (plate_accept == 1){
+    for (int i = SERVO_PLATE_DEFAULT_ANGLE; i <= SERVO_PLATE_ACCEPT_ANGLE; i += 1) {
+      servo_plate.write(i);
+      delay(25);
+    }
+    for (int i = SERVO_PLATE_ACCEPT_ANGLE; i >= SERVO_PLATE_DEFAULT_ANGLE; i -= 1) {
+      servo_plate.write(i);
+      delay(25);
+    }
+  } else if (plate_reject == 1){
+    for (int i = SERVO_PLATE_DEFAULT_ANGLE; i >= SERVO_PLATE_REJECT_ANGLE; i -= 1) {
+      servo_plate.write(i);
+      delay(25);
+    }
+    for (int i = SERVO_PLATE_REJECT_ANGLE; i <= SERVO_PLATE_DEFAULT_ANGLE; i += 1) {
+      servo_plate.write(i);
+      delay(25);
+    }
+  }
+
+  plate_accept = 0;
+  plate_reject = 0;
 }
 
 /*
