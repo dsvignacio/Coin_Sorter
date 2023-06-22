@@ -23,6 +23,7 @@ void setup() {
   servo_ramp.attach(SERVO_RAMP_PIN);
   servo_plate.write(SERVO_PLATE_DEFAULT_ANGLE);
   servo_ramp.write(SERVO_RAMP_5p_ANGLE);
+  Serial.println("=======================================");
 }
 
 void loop() {
@@ -30,31 +31,25 @@ void loop() {
   }
 
   // Insert coin
-  int input = Serial.parseInt();
+  String input = Serial.readString();
+  Serial.println(input);
 
   // Example: Accept 5 peso
-  switch (input) {
-    case 25:
-      servo_ramp.write(SERVO_RAMP_25c_ANGLE);
-      Serial.println("25 cents");
-      plate_accept = 1;
-      break;
-
-    case 5:
-      servo_ramp.write(SERVO_RAMP_5p_ANGLE);
-      Serial.println("5 pesos");
-      plate_accept = 1;
-      break;
-
-    case 20:
-      servo_ramp.write(SERVO_RAMP_20p_ANGLE);
-      Serial.println("20 pesos");
-      plate_accept = 1;
-      break;
-
-    default:
-      Serial.println("Please choose a valid selection");
-      plate_reject = 1;
+  if (input == "25c") {
+    servo_ramp.write(SERVO_RAMP_25c_ANGLE);
+    Serial.println("25 cents");
+    plate_accept = 1;
+  } else if (input == "5p"){
+    servo_ramp.write(SERVO_RAMP_5p_ANGLE);
+    Serial.println("5 pesos");
+    plate_accept = 1;
+  } else if (input == "20p"){
+    servo_ramp.write(SERVO_RAMP_20p_ANGLE);
+    Serial.println("20 pesos");
+    plate_accept = 1;
+  } else {
+    Serial.println("Please choose a valid selection");
+    plate_reject = 1;
   }
 
   if (plate_accept == 1){
@@ -62,6 +57,7 @@ void loop() {
       servo_plate.write(i);
       delay(25);
     }
+    delay(1000);
     for (int i = SERVO_PLATE_ACCEPT_ANGLE; i >= SERVO_PLATE_DEFAULT_ANGLE; i -= 1) {
       servo_plate.write(i);
       delay(25);
@@ -71,6 +67,7 @@ void loop() {
       servo_plate.write(i);
       delay(25);
     }
+    delay(1000);
     for (int i = SERVO_PLATE_REJECT_ANGLE; i <= SERVO_PLATE_DEFAULT_ANGLE; i += 1) {
       servo_plate.write(i);
       delay(25);
